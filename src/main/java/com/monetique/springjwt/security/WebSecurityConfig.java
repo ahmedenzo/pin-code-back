@@ -16,7 +16,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.header.writers.StaticHeadersWriter;
+import org.springframework.web.cors.CorsConfiguration;
 
+import java.util.Arrays;
+import java.util.Collections;
 
 
 @Configuration
@@ -62,6 +65,14 @@ public class WebSecurityConfig {
                             .requestMatchers("/api/test/**").permitAll()
                             .anyRequest().authenticated()
             )
+            .cors(cors -> cors.configurationSource(request -> {
+              var corsConfig = new CorsConfiguration();
+              corsConfig.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
+              corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+              corsConfig.setAllowedHeaders(Arrays.asList("*"));
+              corsConfig.setAllowCredentials(true);
+              return corsConfig;
+            }))
             .headers(headers -> {
               headers.addHeaderWriter(new StaticHeadersWriter("X-XSS-Protection", "1; mode=block"));
               headers.contentSecurityPolicy(csp -> csp.policyDirectives("default-src 'self'; script-src 'self'"));

@@ -22,7 +22,12 @@ public class VerificationController {
 
     @PostMapping("/verifyCardholder")
     public ResponseEntity<?> verifyCardholder(@RequestBody CardholderVerificationRequest request) {
-        boolean isValid = cardholderService.verifyCardholder(request.getCardNumber(), request.getCin(), request.getPhoneNumber());
+        boolean isValid = cardholderService.verifyCardholder(
+                request.getCardNumber(),
+                request.getCin(),
+                request.getPhoneNumber(),
+                request.getExpirationDate()
+        );
 
         if (isValid) {
             String otp = otpService.generateOtp(request.getPhoneNumber());

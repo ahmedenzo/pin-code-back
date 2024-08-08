@@ -13,4 +13,5 @@ public class CardholderVerificationRequest {
     private String cardNumber;
     private String cin;
     private String phoneNumber;
+    private String expirationDate;
 }

@@ -5,6 +5,7 @@ import com.monetique.springjwt.repository.CardholderRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.YearMonth;
 import java.util.Random;
 
 @Service
@@ -24,8 +25,9 @@ public class RandomCardholderService {
         String cin = generateRandomString(CIN_LENGTH);
         String phoneNumber = generateRandomPhoneNumber();
         String pin = generateRandomString(PIN_LENGTH);
+        String expirationDate = generateRandomExpirationDate();
 
-        Cardholder cardholder = new Cardholder(null, cardNumber, cin, phoneNumber, pin);
+        Cardholder cardholder = new Cardholder(null, cardNumber, cin, phoneNumber, pin, expirationDate);
         return cardholderRepository.save(cardholder);
     }
 
@@ -40,5 +42,13 @@ public class RandomCardholderService {
     private String generateRandomPhoneNumber() {
         // Generate random phone number with the format 216xxxxxxx
         return "216" + String.format("%07d", RANDOM.nextInt(10000000));
+    }
+
+    private String generateRandomExpirationDate() {
+        // Generate a random future year and month for the expiration date
+        int currentYear = YearMonth.now().getYear() % 100; // Get last two digits of current year
+        int year = currentYear + RANDOM.nextInt(10); // Expiration year within the next 10 years
+        int month = RANDOM.nextInt(12) + 1; // Random month between 1 and 12
+        return String.format("%02d%02d", year, month); // Format as YYMM
     }
 }

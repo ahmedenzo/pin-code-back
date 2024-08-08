@@ -17,9 +17,12 @@ public class CardholderService {
     @Autowired
     private InfobipSmsService infobipSmsService;
 
-    public boolean verifyCardholder(String cardNumber, String cin, String phoneNumber) {
-        Optional<Cardholder> cardholder = cardholderRepository.findByCardNumberAndCinAndPhoneNumber(cardNumber, cin, phoneNumber);
-        return cardholder.isPresent();
+    public boolean verifyCardholder(String cardNumber, String cin, String phoneNumber, String expirationDate) {
+        Optional<Cardholder> cardholder = cardholderRepository.findByCardNumberAndCinAndPhoneNumberAndExpirationDate(
+                cardNumber, cin, phoneNumber,expirationDate
+        );
+
+        return cardholder.isPresent() && cardholder.get().getExpirationDate().equals(expirationDate);
     }
 
     public void sendPin(String phoneNumber) {

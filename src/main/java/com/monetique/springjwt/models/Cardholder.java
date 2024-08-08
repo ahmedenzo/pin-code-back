@@ -32,4 +32,8 @@ public class Cardholder {
 
     @Column(name = "pin", nullable = false)
     private String pin;
+
+    @Column(name = "expiration_date", nullable = false)
+    private String expirationDate;
 }
+
