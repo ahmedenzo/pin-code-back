@@ -1,4 +1,5 @@
 package com.monetique.springjwt.security;
+
 import com.monetique.springjwt.security.jwt.AuthEntryPointJwt;
 import com.monetique.springjwt.security.jwt.AuthTokenFilter;
 import com.monetique.springjwt.security.services.UserDetailsServiceImpl;
@@ -20,7 +21,6 @@ import org.springframework.web.cors.CorsConfiguration;
 
 import java.util.Arrays;
 import java.util.Collections;
-
 
 @Configuration
 @EnableMethodSecurity
@@ -60,13 +60,18 @@ public class WebSecurityConfig {
     http.csrf(csrf -> csrf.disable())
             .exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            .authorizeHttpRequests(auth ->
-                    auth.requestMatchers("/api/auth/**").permitAll()
-                            .requestMatchers("/api/test/**").permitAll()
-                            .anyRequest().authenticated()
-            )
+            .authorizeHttpRequests(auth -> auth
+                    // Allow public access to login, registration, and test endpoints
+                    .requestMatchers("/api/**",  "/api/test/**").permitAll()
+                    .requestMatchers("/api/auth/createSuperAdmin").hasRole("SUPER_ADMIN")
+                    .requestMatchers("/api/auth/Listbanks").hasRole("SUPER_ADMIN")
+                    // Protect the VerificationController endpoints
+                    .requestMatchers("/api/auth/verifyCardholder", "/api/auth/validateOtp").authenticated()
+                    // All other endpoints require authentication
+                    .requestMatchers("/api/admin/monitoring/**").hasRole("SUPER_ADMIN")
+                    .anyRequest().authenticated())
             .cors(cors -> cors.configurationSource(request -> {
-              var corsConfig = new CorsConfiguration();
+              CorsConfiguration corsConfig = new CorsConfiguration();
               corsConfig.setAllowedOrigins(Collections.singletonList("http://localhost:4200"));
               corsConfig.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
               corsConfig.setAllowedHeaders(Arrays.asList("*"));
@@ -81,7 +86,9 @@ public class WebSecurityConfig {
               headers.addHeaderWriter(new StaticHeadersWriter("X-WebKit-CSP", "default-src 'self'"));
             });
 
+    // Add authentication provider
     http.authenticationProvider(authenticationProvider());
+    // Add JWT filter before username/password authentication filter
     http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
     return http.build();

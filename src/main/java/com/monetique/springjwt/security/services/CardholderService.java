@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -26,20 +27,21 @@ public class CardholderService {
     }
 
     public void sendPin(String phoneNumber) {
-        // Retrieve the Cardholder from the database
-        Optional<Cardholder> cardholder = cardholderRepository.findPinByPhoneNumber(phoneNumber);
+        // Retrieve all cardholders with the given phone number
+        List<Cardholder> cardholders = cardholderRepository.findAllByPhoneNumber(phoneNumber);
 
-        // If the cardholder exists, send the PIN via SMS
-        if (cardholder.isPresent()) {
-            String pin = cardholder.get().getPin();
+        if (cardholders.size() == 1) {
+            String pin = cardholders.get(0).getPin();
             try {
                 infobipSmsService.sendSms(phoneNumber, "Your card PIN is: " + pin);
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        } else if (cardholders.isEmpty()) {
+            System.err.println("No cardholder found with phone number " + phoneNumber);
         } else {
-            // Handle the case where the cardholder does not exist
-            System.err.println("Cardholder with phone number " + phoneNumber + " not found.");
+            System.err.println("Multiple cardholders found with phone number " + phoneNumber);
         }
     }
+
 }

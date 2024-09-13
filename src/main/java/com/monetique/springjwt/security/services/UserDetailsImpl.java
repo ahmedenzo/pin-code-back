@@ -1,5 +1,7 @@
 package com.monetique.springjwt.security.services;
 
+import com.monetique.springjwt.models.Agency;
+import com.monetique.springjwt.models.Bank;
 import com.monetique.springjwt.models.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
@@ -28,6 +30,10 @@ public class UserDetailsImpl implements UserDetails {
   @JsonIgnore
   private String password;
 
+  private User admin;
+  private Bank bank;
+  private Agency agency;
+
   private Collection<? extends GrantedAuthority> authorities;
 
   public static UserDetailsImpl build(User user) {
@@ -39,6 +45,9 @@ public class UserDetailsImpl implements UserDetails {
             user.getId(),
             user.getUsername(),
             user.getPassword(),
+            user.getAdmin(),  // Admin associated with the user
+            user.getBank(),   // Bank associated with the user
+            user.getAgency(), // Agency associated with the user
             authorities);
   }
 
